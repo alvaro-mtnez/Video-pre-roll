@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Player with Ads</title>
+    <style>
+        /* Estilos del reproductor */
+        #video-container {
+            position: relative;
+            width: 100%;
+            max-width: 533px;
+            margin: 0 auto;
+        }
+
+        video {
+            display: block;
+            width: 100%;
+            border-radius: 8px;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #fff;
+        }
+
+        .progress-bar {
+            flex-grow: 1;
+            height: 5px;
+            background: #ccc;
+            margin: 0 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .progress-bar span {
+            display: block;
+            height: 100%;
+            background: #ff0000;
+            width: 0%;
+            border-radius: 5px;
+        }
+
+        .volume {
+            cursor: pointer;
+        }
+
+        .slider {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            width: 300px;
+            max-width: 400px;
+            transform: translateY(100%);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .slider.active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Contenedor del reproductor -->
+    <div id="video-container">
+        <video id="player" autoplay muted preload="metadata">
+            <source src="your-placeholder-video.mp4" type="video/mp4">
+            Tu navegador no soporta este reproductor.
+        </video>
+        <div class="controls">
+            <button id="play-pause">▶️</button>
+            <div class="progress-bar" id="progress">
+                <span></span>
+            </div>
+            <button class="volume" id="volume-toggle">🔈</button>
+        </div>
+    </div>
+
+    <script>
+        const player = document.getElementById('player');
+        const playPause = document.getElementById('play-pause');
+        const progressBar = document.getElementById('progress');
+        const progressSpan = progressBar.querySelector('span');
+        const volumeToggle = document.getElementById('volume-toggle');
+        
+        let adLoaded = false;
+        
+        // Reproducir o pausar
+        playPause.addEventListener('click', () => {
+            if (player.paused) {
+                player.play();
+                playPause.textContent = '⏸️';
+            } else {
+                player.pause();
+                playPause.textContent = '▶️';
+            }
+        });
+        
+        // Actualizar barra de progreso
+        player.addEventListener('timeupdate', () => {
+            const progress = (player.currentTime / player.duration) * 100;
+            progressSpan.style.width = `${progress}%`;
+        });
+        
+        // Toggle volumen
+        volumeToggle.addEventListener('click', () => {
+            player.muted = !player.muted;
+            volumeToggle.textContent = player.muted ? '🔈' : '🔊';
+        });
+        
+        // Llamada a GAM
+        function loadAd() {
+            if (!adLoaded) {
+                console.log("Llamando a GAM...");
+                googletag.cmd.push(function() {
+                    googletag.defineSlot('/21634166200/rich/video_pre-roll', [640, 480], 'gpt-video-ad')
+                        .addService(googletag.pubads());
+                    googletag.enableServices();
+                    googletag.display('gpt-video-ad');
+                });
+                adLoaded = true;
+            }
+        }
+        
+        // Lazy load
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                loadAd();
+            }, 1000);
+        });
+    </script>
+
+    <!-- Google Ad Manager Script -->
+    <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
+    <script>
+        var googletag = googletag || {};
+        googletag.cmd = googletag.cmd || [];
+    </script>
+
+</body>
+</html>
